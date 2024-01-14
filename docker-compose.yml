@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  fastapi-calculator:
+    build:
+      context: .
+      dockerfile: src/Dockerfile
+    ports:
+      - "5005:5005"
+    volumes:
+      - .:/code
+    env_file:
+      - .env
