@@ -1,6 +1,6 @@
 from functools import lru_cache
-from fastapi import FastAPI, Depends, HTTPException
-
+from fastapi import FastAPI, Depends, HTTPException, Body
+from fastapi.middleware.cors import CORSMiddleware
 from .settings import Settings, supabase
 from .schemas import CsvResponse, OperationPayload, OperationResponse
 from ..core.models.operation import Operation
@@ -21,10 +21,14 @@ def get_calculator() -> ICalculator:
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"]
+)
 
 
 @app.post("/calculate", response_model=OperationResponse)
-def calculate_operation(payload: OperationPayload,
+def calculate_operation(payload: OperationPayload = Body(...),
                         calc: ICalculator = Depends(get_calculator)):
     """_Api method, returns a calculated operation_
     """

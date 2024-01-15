@@ -1,10 +1,11 @@
 
 from fastapi.responses import StreamingResponse
 from typing_extensions import Annotated
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import List
 import re
 from ..core.models.operation import Operation
+import json
 
 
 OperatorOrOperand = Annotated[str, Field(pattern=r'(-?[1-9]\d*|0|\+|\*|\/|-)')]
@@ -26,6 +27,14 @@ class OperationPayload(BaseModel):
                 raise ValueError('input must have at least 2 operands')
             if not re.match(r'[\+\*\/-]?', value[2]):
                 raise ValueError('input must have at least 1 operator')
+        return value
+
+    @model_validator(mode='before')
+    @classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, bytes):
+            data = json.loads(value.decode('UTF-8'))
+            return cls(**data)
         return value
 
 
